@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: workdir
         persistentVolumeClaim:
-          claimName: hw-conf
+          claimName: pvc-default-cs
       - name: config
         configMap:
           name: cm-practice2

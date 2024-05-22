@@ -19,8 +19,12 @@ sc-custom            k8s.io/minikube-hostpath   Retain          Immediate       
 standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  14d
 
 $ kubectl -n homework get pvc
-NAME      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-hw-conf   Bound    pvc-716dcc4b-a759-417d-94b0-184ca7534cc8   1Gi        RWO            sc-custom      <unset>                 2m10s
+NAME             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+pvc-custom-cs    Bound    pvc-70be9405-3f71-4ccc-a126-f685af1c9e51   1Gi        RWO            sc-custom      <unset>                 83s
+pvc-default-cs   Bound    pvc-5acae0a2-0d2f-4352-a46d-41d29038ef04   1Gi        RWO            standard       <unset>                 90s
+
+$ k describe deploy practice2 |grep ClaimName
+ClaimName:  pvc-default-cs
 
 $ curl --resolve "homework.otus:80:$( minikube ip )" -i http://homework.otus/conf/file
 
@@ -35,3 +39,10 @@ Accept-Ranges: bytes
 
 host: homework.otus
 DEBUG: "false"
+
+Проверка задачи со *
+заменить в deployment.yaml claimName: pvc-default-cs на pvc-custom-cs
+$ kubernetes apply -f deployment.yaml
+
+$ k describe deploy practice2 |grep ClaimName
+ClaimName:  pvc-custom-cs

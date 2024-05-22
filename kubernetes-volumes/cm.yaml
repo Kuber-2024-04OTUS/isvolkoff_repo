@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-homeworkdir
+  namespace: homework
+  labels:
+    app: nginx  
+data:
+  file: |
+    host: homework.otus
+    DEBUG: "false"    

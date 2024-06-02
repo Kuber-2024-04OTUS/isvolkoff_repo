@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.app.replicas | default 3 }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      nodeSelector: 
+        homework: 'true'
+      serviceAccountName: {{ .Values.sa_monitor }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.svc.targ_port }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.cm_hw }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        {{- if .Values.createProbe }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: workdir
+          mountPath: /homework
+        - name: {{ .Values.cm_nginx }}
+          mountPath: /etc/nginx/conf.d/
+        - name: {{ .Values.cm_hw }}
+          mountPath: /homework/conf/
+        lifecycle:
+          preStop:
+              exec:
+                command: ['/bin/sh','-c','rm -f /homework/index.html']
+      initContainers:
+        {{- toYaml .Values.initContainers | nindent 8 }}          
+      volumes:
+      - name: workdir
+        persistentVolumeClaim:
+          claimName: {{ .Values.pvc.name }}
+      - name: {{ .Values.cm_nginx }}
+        configMap:
+          name: {{ .Values.cm_nginx }}
+      - name: {{ .Values.cm_hw }}
+        configMap:
+          name: {{ .Values.cm_hw }}

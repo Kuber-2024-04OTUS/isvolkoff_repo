@@ -1,0 +1,70 @@
+namespace: homework
+
+sa_monitor: monitor
+sa_cd: cd
+
+clusterrole:
+  name: monitoring
+  url: ["/metrics"]
+  verbs: ["get"]
+
+svc:
+  name: practice3
+  port: 80
+  targ_port: 8000
+app:
+  replicas: 3
+image:
+  repository: nginx
+  tag: 1.25.5
+
+sc: sc-custom
+pvc:
+  name: pvc-custom-cs
+  request: 1Gi
+
+ing:
+  host: homework.otus
+
+cm_hw: cm-homeworkdir
+cm_nginx: cm-practice2
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  requests:
+    cpu: 80m
+    memory: 64Mi
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+
+createProbe: true
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /
+    port: 8000
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 1
+
+initContainers:
+- name: init
+  image: busybox:1.28
+  command: ['wget', 'https://otus.ru', '-O', '/init/index.html']
+  volumeMounts:
+  - name: workdir
+    mountPath: /init
+- name: init-metrics
+  image: praqma/network-multitool
+  command: ['sh', '-c', 'curl --cacert "${CACERT}" --header "Authorization: Bearer $(cat "${SA}/token")" -X GET "${KUBEAPI}/metrics" -o /init/metrics.html']
+  envFrom:
+  - configMapRef:
+      name: cm-homeworkdir
+  volumeMounts:
+  - name: workdir
+    mountPath: /init

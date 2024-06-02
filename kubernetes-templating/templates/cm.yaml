@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.cm_hw }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Chart.Name }}  
+data:
+  KUBEAPI: https://kubernetes.default.svc
+  SA: /var/run/secrets/kubernetes.io/serviceaccount
+  CACERT: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  NAMESPACE: {{ .Values.namespace }}
+  file: |
+    host: {{ .Values.ing.host }}
+    DEBUG: "false"   

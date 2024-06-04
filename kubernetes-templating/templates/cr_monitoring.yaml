@@ -1,0 +1,7 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.sa_monitor }}
+rules:
+- nonResourceURLs:  {{ .Values.clusterrole.url }}
+  verbs: {{ .Values.clusterrole.verbs }}

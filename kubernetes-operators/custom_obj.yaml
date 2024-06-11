@@ -1,0 +1,13 @@
+apiVersion: "otus.homework/v1"
+kind: MySQL
+metadata:
+  name: new-mysql
+  namespace: default
+  finalizers: []
+  labels:
+    app: mysql
+spec:
+  image: mysql:5.6
+  database: test
+  password: 1q2w3e
+  storage_size: 1Gi

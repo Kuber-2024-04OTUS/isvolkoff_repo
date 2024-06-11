@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deploy
+  namespace: default
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql  
+    spec:
+      serviceAccountName: api-adm
+      containers:
+      - name: mysql
+        image: roflmaoinmysoul/mysql-operator:1.0.0

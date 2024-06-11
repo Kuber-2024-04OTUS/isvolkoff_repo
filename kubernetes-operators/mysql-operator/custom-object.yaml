@@ -1,0 +1,10 @@
+---
+apiVersion: kopf.dev/v1
+kind: MySQL
+metadata:
+  name: hw-mysql
+spec:
+  storage_size: 1G
+  image: mysql:5.6
+  password: 1q2w3e
+  port: 3306

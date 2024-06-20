@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-nginx
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx  
+    spec:
+      containers:
+      - name: nginx
+        image: hw-nginx:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi        
+      - name: nginx-prometheus-exporter
+        image: nginx/nginx-prometheus-exporter:1.1.0
+        args: ["--nginx.scrape-uri=http://localhost/basic_status"]
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9113
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hw-nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 9113
+    name: exporter
+    targetPort: 9113
+  selector:
+    app: nginx
+  type: ClusterIP
+
+

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: otus
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Project Otus
+  sourceRepos:  
+    - 'https://github.com/Kuber-2024-04OTUS/isvolkoff_repo.git'
+  destinations:
+  - namespace: homeworkhelm
+    server: 'https://kubernetes.default.svc'
+    name: in-cluster
+  - namespace: homework
+    server: 'https://kubernetes.default.svc'
+    name: in-cluster    
+    
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: Namespace
+  - group: 'networking.k8s.io'
+    kind: '*'
+  - group: 'rbac.authorization.k8s.io'
+    kind: '*'
+
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+ 

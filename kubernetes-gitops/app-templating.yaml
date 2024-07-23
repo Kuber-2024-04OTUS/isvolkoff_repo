@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubernetes-templating
+  namespace: argocd
+spec:
+  project: otus
+  source:
+    repoURL: https://github.com/Kuber-2024-04OTUS/isvolkoff_repo.git
+    targetRevision: kubernetes-gitops
+    path: kubernetes-templating
+    helm:
+      valueFiles:
+        - values.yaml   
+      parameters:      
+      - name: "namespace"
+        value: "homeworkhelm"
+      - name: "ing.host"
+        value: homework-templating.otus
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homeworkhelm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+   
+
+     

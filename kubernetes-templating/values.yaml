@@ -18,9 +18,13 @@ image:
   repository: nginx
   tag: 1.25.5
 
+createStorageclass: false
 sc: sc-custom
+
+createPVC: false
 pvc:
-  name: pvc-custom-cs
+  # name: pvc-custom-cs
+  name: pvc-default-cs
   request: 1Gi
 
 ing:

@@ -1,0 +1,19 @@
+nameOverride: argocd
+
+crds:
+  install: true
+  keep: true
+  annotations: {}
+  additionalLabels: {}
+
+global:
+  domain: argocd.example.com
+  image:
+    repository: quay.io/argoproj/argocd
+  nodeSelector:
+    node-group-name: 'infra'
+  tolerations:
+    - key: 'node-role'
+      effect: 'NoSchedule'
+      operator: 'Equal'
+      value: 'infra'  

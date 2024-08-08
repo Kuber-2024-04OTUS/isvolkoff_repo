@@ -1,0 +1,16 @@
+server:
+  replicas: 3
+  extraConfig: |
+        {
+          "addresses": {
+            "http": "0.0.0.0"
+          },
+          "acl": {
+            "enabled": true,
+            "default_policy": "deny",
+            "down_policy": "extend-cache",
+            "enable_token_persistence": true
+          }
+        }
+connectInject:
+  enabled: false        

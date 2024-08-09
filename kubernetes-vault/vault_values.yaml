@@ -1,0 +1,45 @@
+global:
+  tlsDisable: true
+ 
+server:
+  standalone:
+    enabled: false
+  dataStorage:
+    enabled: false
+  affinity: |
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ template "vault.name" . }}
+              app.kubernetes.io/instance: "{{ .Release.Name }}"
+              component: server
+          topologyKey: kubernetes.io/hostname
+  ha:
+    enabled: true
+    replicas: 2
+    config: |
+      ui = true
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+      storage "consul" {
+        path = "vault"
+        address = "consul-consul-server.consul.svc:8500"
+        scheme = "http"
+        token = "a519a7c1-e7b9-bbec-e5d6-2810ee1c385f"
+      }
+      service_registration "kubernetes" {}
+   
+injector:
+  enabled: "true" 
+  replicas: 1
+  port: 8000
+ 
+ui:
+  enabled: true
+  externalPort: 8200
+  targetPort: 8200  
+

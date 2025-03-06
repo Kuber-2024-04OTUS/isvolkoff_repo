@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: practice2
+  namespace: homework
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      nodeSelector: 
+        homework: 'true'
+      serviceAccountName: monitor
+      containers:
+      - name: nginx
+        image: nginx:1.25.5
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: cm-homeworkdir
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8000
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: workdir
+          mountPath: /homework
+        - name: config
+          mountPath: /etc/nginx/conf.d/
+        - name: homework-cm
+          mountPath: /homework/conf/
+        # lifecycle:
+        #   preStop:
+        #       exec:
+        #         command: ['/bin/sh','-c','rm -f /homework/index.html']
+      initContainers:
+      - name: init
+        image: busybox:1.28
+        command: ['wget', 'https://otus.ru', '-O', '/init/index.html']
+        volumeMounts:
+        - name: workdir
+          mountPath: /init
+      - name: init-metrics
+        image: praqma/network-multitool
+        command: ['sh', '-c', 'curl --cacert "${CACERT}" --header "Authorization: Bearer $(cat "${SA}/token")" -X GET "${KUBEAPI}/metrics" -o /init/metrics.html']
+        envFrom:
+        - configMapRef:
+            name: cm-homeworkdir
+        volumeMounts:
+        - name: workdir
+          mountPath: /init          
+      volumes:
+      - name: workdir
+        persistentVolumeClaim:
+          claimName: pvc-custom-cs
+      - name: config
+        configMap:
+          name: cm-practice2
+      - name: homework-cm
+        configMap:
+          name: cm-homeworkdir

@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-homeworkdir
+  namespace: homework
+  labels:
+    app: nginx  
+data:
+  KUBEAPI: https://kubernetes.default.svc
+  SA: /var/run/secrets/kubernetes.io/serviceaccount
+  CACERT: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  NAMESPACE: homework
+  file: |
+    host: homework.otus
+    DEBUG: "false"   
